@@ -1,0 +1,5 @@
+eclipse.preferences.version=1
+encoding//applications/welcome/controllers/default.py=utf-8
+encoding//applications/welcome/controllers/teacher.py=utf8
+encoding//applications/welcome/models/db.py=utf-8
+encoding//applications/welcome/models/menu.py=utf-8

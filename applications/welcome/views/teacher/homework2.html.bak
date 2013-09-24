@@ -1,0 +1,3 @@
+{{extend 'layout.html'}}
+<h1>这是 teacher/homework2.html 模板</h1>
+{{=SQLTABLE(rows,upload=URL('download')}}

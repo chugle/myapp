@@ -1,0 +1,138 @@
+timestamp: 2013-08-19T20:20:21.546000
+CREATE TABLE auth_user(
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    first_name CHAR(128),
+    last_name CHAR(128),
+    email CHAR(512),
+    password CHAR(512),
+    registration_key CHAR(512),
+    reset_password_key CHAR(512),
+    registration_id CHAR(512),
+    jie CHAR(512),
+    banji CHAR(512)
+);
+success!
+timestamp: 2013-08-19T20:20:21.734000
+CREATE TABLE auth_group(
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    role CHAR(512),
+    description TEXT
+);
+success!
+timestamp: 2013-08-19T20:20:21.750000
+CREATE TABLE auth_membership(
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    user_id INTEGER REFERENCES auth_user (id) ON DELETE CASCADE,
+    group_id INTEGER REFERENCES auth_group (id) ON DELETE CASCADE
+);
+success!
+timestamp: 2013-08-19T20:20:21.796000
+CREATE TABLE auth_permission(
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    group_id INTEGER REFERENCES auth_group (id) ON DELETE CASCADE,
+    name CHAR(512),
+    table_name CHAR(512),
+    record_id INTEGER
+);
+success!
+timestamp: 2013-08-19T20:20:21.812000
+CREATE TABLE auth_event(
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    time_stamp TIMESTAMP,
+    client_ip CHAR(512),
+    user_id INTEGER REFERENCES auth_user (id) ON DELETE CASCADE,
+    origin CHAR(512),
+    description TEXT
+);
+success!
+timestamp: 2013-08-19T20:20:21.828000
+CREATE TABLE auth_cas(
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    user_id INTEGER REFERENCES auth_user (id) ON DELETE CASCADE,
+    created_on TIMESTAMP,
+    service CHAR(512),
+    ticket CHAR(512),
+    renew CHAR(1)
+);
+success!
+timestamp: 2013-08-19T20:26:11.265000
+CREATE TABLE course(
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    title CHAR(512),
+    nianji CHAR(512),
+    neirong TEXT,
+    kejian CHAR(512)
+);
+success!
+timestamp: 2013-08-19T20:26:11.281000
+CREATE TABLE keshi(
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    xuenian CHAR(512),
+    xueqi CHAR(512),
+    keshi CHAR(512),
+    kecheng INTEGER REFERENCES course (id) ON DELETE CASCADE
+);
+success!
+timestamp: 2013-08-19T20:26:11.296000
+CREATE TABLE timu(
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    nianji CHAR(512),
+    xueqi CHAR(512),
+    wenti CHAR(512),
+    zidong CHAR(1),
+    daan CHAR(512)
+);
+success!
+timestamp: 2013-08-19T20:26:11.312000
+CREATE TABLE lianxi(
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    keshi INTEGER REFERENCES keshi (id) ON DELETE CASCADE,
+    bianhao INTEGER,
+    timu INTEGER REFERENCES timu (id) ON DELETE CASCADE
+);
+success!
+timestamp: 2013-08-19T20:26:11.328000
+CREATE TABLE zuoti(
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    lianxi INTEGER REFERENCES lianxi (id) ON DELETE CASCADE,
+    zuozhe INTEGER REFERENCES auth_user (id) ON DELETE CASCADE,
+    zuoda TEXT,
+    defen CHAR(512)
+);
+success!
+timestamp: 2013-08-19T20:26:11.343000
+CREATE TABLE zuoye(
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    keshi INTEGER REFERENCES keshi (id) ON DELETE CASCADE,
+    zuozhe INTEGER REFERENCES auth_user (id) ON DELETE CASCADE,
+    wenjian CHAR(512),
+    defen INTEGER
+);
+success!
+timestamp: 2013-08-19T20:26:11.359000
+CREATE TABLE wangpan(
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    yonghu INTEGER REFERENCES auth_user (id) ON DELETE CASCADE,
+    daxiao INTEGER,
+    leixin CHAR(512),
+    wenjian CHAR(512)
+);
+success!
+timestamp: 2013-08-19T20:26:11.375000
+CREATE TABLE defen(
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    keshi INTEGER REFERENCES keshi (id) ON DELETE CASCADE,
+    xuesheng INTEGER REFERENCES auth_user (id) ON DELETE CASCADE,
+    chengji CHAR(512)
+);
+success!
+timestamp: 2013-08-19T20:33:37.531000
+ALTER TABLE timu ADD course INTEGER REFERENCES course (id) ON DELETE CASCADE;
+timestamp: 2013-08-19T20:36:23.875000
+ALTER TABLE course ADD xueqi CHAR(512);
+timestamp: 2013-08-19T20:42:26.625000
+ALTER TABLE keshi ADD nianji CHAR(512);
+timestamp: 2013-08-29T20:12:25.687000
+ALTER TABLE keshi ADD haszuoye CHAR(1);
+timestamp: 2013-09-03T10:36:06.774000
+ALTER TABLE keshi ADD showed CHAR(1);

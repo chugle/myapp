@@ -1,0 +1,6 @@
+{{extend 'layout.html'}}
+<h1>请选择课程</h1>
+{{for row in rows:}}
+{{=H3(A(row.keshi.keshi+'. '+row.course.title, _href=URL("study", args=row.keshi.id)))}}
+{{pass}}
+

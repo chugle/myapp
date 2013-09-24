@@ -1,0 +1,18 @@
+{{extend 'layout.html'}}
+
+{{extend 'layout.html'}}
+<h3>{{=title}}</h3>
+<p>{{=XML(neirong)}}</p>
+
+
+{{=SQLTABLE(rows,upload=URL('download'),headers={'course.kejian':'课件下载：'})}}
+
+<br>
+<hr>
+{{=lianxi_url}}
+<br>
+{{=defen_url}}
+<br>
+{{=zuoye_url}}
+<br>
+<a href={{=URL('course_list')}}>返回</a>

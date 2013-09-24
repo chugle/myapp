@@ -1,0 +1,677 @@
+(dp1
+S'output'
+p2
+S"<type 'exceptions.SyntaxError'> Set: no tables selected"
+p3
+sS'layer'
+p4
+S'E:\\web\\applications\\welcome\\controllers/teacher.py'
+p5
+sS'code'
+p6
+S'# coding: utf8\n# \xe5\xb0\x9d\xe8\xaf\x95\nimport datetime\nnow=datetime.date.today()\nyear=now.year\nmonth=now.month\nif int(month) in range(2,8):\n    xueqi=2\n    xuenian=str(int(year)-1-2000)\nelse:\n    xueqi=1\n    xuenian=str(int(year)-2000)\n\n\n@auth.requires(request.client==\'127.0.0.1\' or auth.has_membership(role=\'teacher\') , requires_login=False)\ndef index(): return dict()\n\n@auth.requires(request.client==\'127.0.0.1\' or auth.has_membership(role=\'teacher\') , requires_login=False)\ndef student_manage():\n    form = SQLFORM.grid(db.auth_user)\n    return dict(form=form)\n\n@auth.requires(request.client==\'127.0.0.1\' or auth.has_membership(role=\'teacher\') , requires_login=False)\n\ndef course_manage():\n    form = SQLFORM.smartgrid(db.course)\n    return dict(form=form)\n\n@auth.requires(request.client==\'127.0.0.1\' or auth.has_membership(role=\'teacher\') , requires_login=False)\ndef keshi_manage():\n    form = SQLFORM.smartgrid(db.keshi,\n                             constraints={\'keshi\':(db.keshi.xuenian==xuenian)&(db.keshi.xueqi==xueqi)},\n                             links=[dict(header=\'\',body=lambda row:A(\'\xe6\x89\xb9\xe6\x94\xb9\xe4\xbd\x9c\xe4\xb8\x9a\',_href=URL(\'pigai\',args=row.id)))])\n    return dict(form=form)   \n\n@auth.requires(request.client==\'127.0.0.1\' or auth.has_membership(role=\'teacher\') , requires_login=False)\ndef timu_manage():\n    form = SQLFORM.smartgrid(db.timu)\n    return dict(form=form)      \n \n@auth.requires(request.client==\'127.0.0.1\' or auth.has_membership(role=\'teacher\') , requires_login=False)\ndef lianxi_manage():\n    form = SQLFORM.smartgrid(db.lianxi)\n    return dict(form=form)      \n\n@auth.requires(request.client==\'127.0.0.1\' or auth.has_membership(role=\'teacher\') , requires_login=False)\ndef zuoti_manage():\n    form = SQLFORM.smartgrid(db.zuoti)\n    return  dict(form=form)\n\n@auth.requires(request.client==\'127.0.0.1\' or auth.has_membership(role=\'teacher\') , requires_login=False)\ndef zuoye_manage():\n    form = SQLFORM.smartgrid(db.zuoye)\n    return  dict(form=form)\n\n@auth.requires(request.client==\'127.0.0.1\' or auth.has_membership(role=\'teacher\') , requires_login=False)\ndef defen_manage():\n    form = SQLFORM.smartgrid(db.defen)\n    return  dict(form=form)\n\n@auth.requires(request.client==\'127.0.0.1\' or auth.has_membership(role=\'teacher\') , requires_login=False)\ndef wangpan_manage():\n    form = SQLFORM.smartgrid(db.wangpan)\n    return  dict(form=form)\n\n@auth.requires(request.client==\'127.0.0.1\' or auth.has_membership(role=\'teacher\') , requires_login=False)\ndef pigai():\n    keshi_id=request.args[0]\n    row=db((db.zuoye.keshi==keshi_id)&(db.zuoye.defen==None)).select().first()\n    if row:\n        form=SQLFORM(db.zuoye,row.id,upload=URL(\'download\'))\n        vals=None\n        if form.process().accepted:\n            vals=response.url\n            redirect(request.url)\n\n        return dict(form=form,vals=vals)\n    else:\n        return dict(error=H3(\'\xe6\xb2\xa1\xe6\x9c\x89\xe5\x8f\xaf\xe4\xbb\xa5\xe6\x89\xb9\xe6\x94\xb9\xe7\x9a\x84\xe4\xbd\x9c\xe4\xb8\x9a\'))\n\n    \n\n@auth.requires(request.client==\'127.0.0.1\' or auth.has_membership(role=\'teacher\') , requires_login=False)\ndef grade2():\n    lastxs=db().select(db.zuoye.zuozhe).last().zuozhe\n    banji=db.auth_user[lastxs].banji\n    if len(request.args):\n        banji=request.args[0]\n    rows=db((db.keshi.xuenian==xuenian)&(db.keshi.xueqi==xueqi)&(db.keshi.nianji==2)).select(left=db.keshi.on(db.keshi.kecheng==db.course.id))\n    return dict(rows=rows,banji=banji)\n\n@auth.requires(request.client==\'127.0.0.1\' or auth.has_membership(role=\'teacher\') , requires_login=False)\ndef grade1():\n    lastxs=db().select(db.zuoye.zuozhe).last().zuozhe\n    banji=db.auth_user[lastxs].banji\n    if len(request.args):\n        banji=request.args[0]\n    rows=db((db.keshi.xuenian==xuenian)&(db.keshi.xueqi==xueqi)&(db.keshi.nianji==1)).select(left=db.keshi.on(db.keshi.kecheng==db.course.id))\n    return dict(rows=rows,banji=banji)\n\n\ndef homeworks2():\n    keshi_id=request.args[0]\n    if month in range(2,8):\n        jie2=int(year)+1-2000\n    else:\n        jie2=int(year)+2-2000\n    banji=request.args[1]\n    \n    rows=db((db.auth_user.banji==banji)&\n                (db.auth_user.jie==jie2)).select(\n                                    db.auth_user.last_name,\n                                    db.auth_user.first_name,\n                                    db.zuoye.ALL,left=db.zuoye.on((db.auth_user.id==db.zuoye.zuozhe)&(db.zuoye.keshi==keshi_id)),\n                                    orderby=db.auth_user.last_name)\n    return dict(rows=rows,banji=banji)\n \ndef homeworks1():\n    keshi_id=request.args[0]\n    if month in range(2,8):\n        jie1=int(year)+2-2000\n    else:\n        jie1=int(year)+3-2000\n    banji=request.args[1]\n    \n    rows=db((db.auth_user.banji==banji)&\n                (db.auth_user.jie==jie1)).select(\n                                    db.auth_user.last_name,\n                                    db.auth_user.first_name,\n                                    db.zuoye.ALL,left=db.zuoye.on((db.auth_user.id==db.zuoye.zuozhe)&(db.zuoye.keshi==keshi_id)),\n                                    orderby=db.auth_user.last_name)\n    return dict(rows=rows,banji=banji)\n\n\ndef addwenti():\n    keshi_id=request.args[0]\n    keshi=db.keshi[keshi_id]\n    course=keshi.kecheng\n    timus=db(db.timu.course==course).select()\n    for timu in timus:\n        db.lianxi.update_or_insert(\n                                   (db.lianxi.keshi==keshi_id)&\n                                   (db.lianxi.timu==timu),\n                                   keshi=keshi_id,\n                                   timu=timu\n                                   )\n    lianxis=db(db.lianxi(db.lianxi.keshi==keshi_id)).select()\n    return dict(timus=timus,lianxis=lianxis)\n    \n    \n\n\n\'\'\'\ngrade1,grade2\xef\xbc\x8c\xe8\xbf\x9e\xe6\x8e\xa5\xe6\xaf\x8f\xe4\xb8\xaa\xe8\xaf\xbe\xe7\xa8\x8b\xe5\xad\xa6\xe4\xb9\xa0\xe6\xa8\xa1\xe5\x9d\x97\xef\xbc\x8c\xe5\xad\xa6\xe4\xb9\xa0\xe6\xa8\xa1\xe5\x9d\x97\xe9\x87\x8c\xe9\x9d\xa2\xe6\x9c\x89\xe7\xbb\x83\xe4\xb9\xa0\xe8\xae\xb2\xe8\xa7\xa3\xef\xbc\x8c\xe4\xbd\x9c\xe4\xb8\x9a\xe6\x83\x85\xe5\x86\xb5\xe7\xbb\x9f\xe8\xae\xa1\xef\xbc\x88\xe4\xba\xa4\xe4\xbd\x9c\xe4\xb8\x9a\xe7\xbb\x9f\xe8\xae\xa1\xef\xbc\x8c\xe5\xbe\x97\xe5\x88\x86\xe7\xbb\x9f\xe8\xae\xa1\xef\xbc\x89\n\xe7\x94\xa8ajax\xe5\xae\x9e\xe7\x8e\xb0\xe7\xbb\x9f\xe8\xae\xa1\xe5\x92\x8c\xe8\xae\xb2\xe8\xa7\xa3\xe9\x83\xa8\xe5\x88\x86\xe6\x98\xbe\xe7\xa4\xba\xe7\xad\x94\xe6\xa1\x88\n\'\'\'  \ndef download():\n    """\n    allows downloading of uploaded files\n    http://..../[app]/default/download/[filename]\n    """\n    return response.download(request, db)\nresponse._vars=response._caller(addwenti)\n'
+p7
+sS'snapshot'
+p8
+(dp9
+S'exception'
+p10
+(dp11
+S'__getslice__'
+p12
+S"<method-wrapper '__getslice__' of exceptions.SyntaxError object>"
+p13
+sS'text'
+p14
+S'None'
+p15
+sS'__str__'
+p16
+S"<method-wrapper '__str__' of exceptions.SyntaxError object>"
+p17
+sS'__reduce__'
+p18
+S'<built-in method __reduce__ of exceptions.SyntaxError object>'
+p19
+sS'__dict__'
+p20
+S'{}'
+p21
+sS'__sizeof__'
+p22
+S'<built-in method __sizeof__ of exceptions.SyntaxError object>'
+p23
+sS'__init__'
+p24
+S"<method-wrapper '__init__' of exceptions.SyntaxError object>"
+p25
+sS'__setattr__'
+p26
+S"<method-wrapper '__setattr__' of exceptions.SyntaxError object>"
+p27
+sS'__reduce_ex__'
+p28
+S'<built-in method __reduce_ex__ of exceptions.SyntaxError object>'
+p29
+sS'__new__'
+p30
+S'<built-in method __new__ of type object>'
+p31
+sS'__format__'
+p32
+S'<built-in method __format__ of exceptions.SyntaxError object>'
+p33
+sS'__class__'
+p34
+S"<type 'exceptions.SyntaxError'>"
+p35
+sS'filename'
+p36
+S'None'
+p37
+sS'lineno'
+p38
+S'None'
+p39
+sS'msg'
+p40
+S"'Set: no tables selected'"
+p41
+sS'__doc__'
+p42
+S"'Invalid syntax.'"
+p43
+sS'__getitem__'
+p44
+S"<method-wrapper '__getitem__' of exceptions.SyntaxError object>"
+p45
+sS'__setstate__'
+p46
+S'<built-in method __setstate__ of exceptions.SyntaxError object>'
+p47
+sS'__getattribute__'
+p48
+S"<method-wrapper '__getattribute__' of exceptions.SyntaxError object>"
+p49
+sS'print_file_and_line'
+p50
+S'None'
+p51
+sS'args'
+p52
+S"('Set: no tables selected',)"
+p53
+sS'__subclasshook__'
+p54
+S'<built-in method __subclasshook__ of type object>'
+p55
+sS'offset'
+p56
+S'None'
+p57
+sS'__unicode__'
+p58
+S'<built-in method __unicode__ of exceptions.SyntaxError object>'
+p59
+sS'__delattr__'
+p60
+S"<method-wrapper '__delattr__' of exceptions.SyntaxError object>"
+p61
+sS'__repr__'
+p62
+S"<method-wrapper '__repr__' of exceptions.SyntaxError object>"
+p63
+sS'__hash__'
+p64
+S"<method-wrapper '__hash__' of exceptions.SyntaxError object>"
+p65
+ssS'evalue'
+p66
+S'Set: no tables selected'
+p67
+sS'request'
+p68
+cgluon.html
+XML_unpickle
+p69
+(S's\xf9L\x00\x00<div><table><tr><td style="font-weight:bold;vertical-align:top">ajax</td><td valign="top">:</td><td><div>False</div></td></tr><tr><td style="font-weight:bold;vertical-align:top">application</td><td valign="top">:</td><td><div>welcome</div></td></tr><tr><td style="font-weight:bold;vertical-align:top">args</td><td valign="top">:</td><td><div><table><tr><td><div>5</div></td></tr></table></div></td></tr><tr><td style="font-weight:bold;vertical-align:top">body</td><td valign="top">:</td><td><div>&lt;cStringIO.StringO object at 0x019D8360&gt;</div></td></tr><tr><td style="font-weight:bold;vertical-align:top">cid</td><td valign="top">:</td><td><div>None</div></td></tr><tr><td style="font-weight:bold;vertical-align:top">client</td><td valign="top">:</td><td><div>192.168.201.200</div></td></tr><tr><td style="font-weight:bold;vertical-align:top">controller</td><td valign="top">:</td><td><div>teacher</div></td></tr><tr><td style="font-weight:bold;vertical-align:top">cookies</td><td valign="top">:</td><td><div><table><tr><td style="font-weight:bold;vertical-align:top">session_id_admin</td><td valign="top">:</td><td><div>192.168.201.200-b1e6b234-9522-46f7-b633-1e8ae3080901<table><tr><td style="font-weight:bold;vertical-align:top">comment</td><td valign="top">:</td><td><div></div></td></tr><tr><td style="font-weight:bold;vertical-align:top">domain</td><td valign="top">:</td><td><div></div></td></tr><tr><td style="font-weight:bold;vertical-align:top">expires</td><td valign="top">:</td><td><div></div></td></tr><tr><td style="font-weight:bold;vertical-align:top">httponly</td><td valign="top">:</td><td><div></div></td></tr><tr><td style="font-weight:bold;vertical-align:top">max-age</td><td valign="top">:</td><td><div></div></td></tr><tr><td style="font-weight:bold;vertical-align:top">path</td><td valign="top">:</td><td><div></div></td></tr><tr><td style="font-weight:bold;vertical-align:top">secure</td><td valign="top">:</td><td><div></div></td></tr><tr><td style="font-weight:bold;vertical-align:top">version</td><td valign="top">:</td><td><div></div></td></tr></table></div></td></tr><tr><td style="font-weight:bold;vertical-align:top">session_id_welcome</td><td valign="top">:</td><td><div>192.168.201.200-30e8f22d-40b0-4c3c-b1c4-8a13ad6241dd<table><tr><td style="font-weight:bold;vertical-align:top">comment</td><td valign="top">:</td><td><div></div></td></tr><tr><td style="font-weight:bold;vertical-align:top">domain</td><td valign="top">:</td><td><div></div></td></tr><tr><td style="font-weight:bold;vertical-align:top">expires</td><td valign="top">:</td><td><div></div></td></tr><tr><td style="font-weight:bold;vertical-align:top">httponly</td><td valign="top">:</td><td><div></div></td></tr><tr><td style="font-weight:bold;vertical-align:top">max-age</td><td valign="top">:</td><td><div></div></td></tr><tr><td style="font-weight:bold;vertical-align:top">path</td><td valign="top">:</td><td><div></div></td></tr><tr><td style="font-weight:bold;vertical-align:top">secure</td><td valign="top">:</td><td><div></div></td></tr><tr><td style="font-weight:bold;vertical-align:top">version</td><td valign="top">:</td><td><div></div></td></tr></table></div></td></tr></table></div></td></tr><tr><td style="font-weight:bold;vertical-align:top">env</td><td valign="top">:</td><td><div><table><tr><td style="font-weight:bold;vertical-align:top">app_folders</td><td valign="top">:</td><td><div>set([&#x27;E:\\\\web\\\\applications\\\\welcome\\\\&#x27;])</div></td></tr><tr><td style="font-weight:bold;vertical-align:top">applications_parent</td><td valign="top">:</td><td><div>E:\\web</div></td></tr><tr><td style="font-weight:bold;vertical-align:top">cmd_args</td><td valign="top">:</td><td><div><table></table></div></td></tr><tr><td style="font-weight:bold;vertical-align:top">cmd_options</td><td valign="top">:</td><td><div>&lt;Values at 0x1664c88: {&#x27;verbose&#x27;: False, &#x27;ip&#x27;: &#x27;192.168.201.200&#x27;, &#x27;with_scheduler&#x27;: False, &#x27;ips&#x27;: [&#x27;192.168.201.200&#x27;, &#x27;192.168.202.200&#x27;], &#x27;shutdown_timeout&#x27;: 5, &#x27;taskbar&#x27;: False, &#x27;with_coverage&#x27;: False, &#x27;port&#x27;: 80, &#x27;maxthreads&#x27;: None, &#x27;softcron&#x27;: False, &#x27;server_name&#x27;: &#x27;cateacher&#x27;, &#x27;bpython&#x27;: False, &#x27;nogui&#x27;: False, &#x27;pid_filename&#x27;: &#x27;httpserver.pid&#x27;, &#x27;extcron&#x27;: False, &#x27;runcron&#x27;: False, &#x27;run_system_tests&#x27;: False, &#x27;test&#x27;: None, &#x27;folder&#x27;: &#x27;E:\\\\web&#x27;, &#x27;config&#x27;: &#x27;&#x27;, &#x27;import_models&#x27;: False, &#x27;winservice&#x27;: &#x27;&#x27;, &#x27;shell&#x27;: None, &#x27;run&#x27;: &#x27;&#x27;, &#x27;log_filename&#x27;: &#x27;httpserver.log&#x27;, &#x27;debuglevel&#x27;: 30, &#x27;args&#x27;: [&#x27;&#x27;], &#x27;socket_timeout&#x27;: 5, &#x27;ssl_ca_certificate&#x27;: None, &#x27;scheduler&#x27;: None, &#x27;profiler_filename&#x27;: None, &#x27;ssl_private_key&#x27;: &#x27;&#x27;, &#x27;scheduler_groups&#x27;: None, &#x27;password&#x27;: &quot;&#x27;123&#x27;&quot;, &#x27;request_queue_size&#x27;: 5, &#x27;ssl_certificate&#x27;: &#x27;&#x27;, &#x27;cronjob&#x27;: False, &#x27;numthreads&#x27;: None, &#x27;quiet&#x27;: False, &#x27;interfaces&#x27;: None, &#x27;minthreads&#x27;: None, &#x27;timeout&#x27;: 10, &#x27;plain&#x27;: False, &#x27;nobanner&#x27;: False}&gt;</div></td></tr><tr><td style="font-weight:bold;vertical-align:top">db_sessions</td><td valign="top">:</td><td><div>set([])</div></td></tr><tr><td style="font-weight:bold;vertical-align:top">debugging</td><td valign="top">:</td><td><div>False</div></td></tr><tr><td style="font-weight:bold;vertical-align:top">gluon_parent</td><td valign="top">:</td><td><div>E:\\web</div></td></tr><tr><td style="font-weight:bold;vertical-align:top">http_accept</td><td valign="top">:</td><td><div>*/*</div></td></tr><tr><td style="font-weight:bold;vertical-align:top">http_accept_encoding</td><td valign="top">:</td><td><div>gzip, deflate</div></td></tr><tr><td style="font-weight:bold;vertical-align:top">http_accept_language</td><td valign="top">:</td><td><div>zh-cn</div></td></tr><tr><td style="font-weight:bold;vertical-align:top">http_connection</td><td valign="top">:</td><td><div>Keep-Alive</div></td></tr><tr><td style="font-weight:bold;vertical-align:top">http_cookie</td><td valign="top">:</td><td><div>session_id_admin=192.168.201.200-b1e6b234-9522-46f7-b633-1e8ae3080901; session_id_welcome=192.168.201.200-30e8f22d-40b0-4c3c-b1c4-8a13ad6241dd</div></td></tr><tr><td style="font-weight:bold;vertical-align:top">http_host</td><td valign="top">:</td><td><div>cateacher</div></td></tr><tr><td style="font-weight:bold;vertical-align:top">http_user_agent</td><td valign="top">:</td><td><div>Mozilla/4.0 (compatible; MSIE 8.0; Windows NT 5.1; Trident/4.0; Maxthon; Foxy/1; .NET CLR 2.0.50727; InfoPath.1)</div></td></tr><tr><td style="font-weight:bold;vertical-align:top">is_jython</td><td valign="top">:</td><td><div>False</div></td></tr><tr><td style="font-weight:bold;vertical-align:top">is_pypy</td><td valign="top">:</td><td><div>False</div></td></tr><tr><td style="font-weight:bold;vertical-align:top">local_hosts</td><td valign="top">:</td><td><div><table><tr><td><div>cateacher</div></td></tr><tr><td><div>192.168.202.200</div></td></tr><tr><td><div>192.168.201.200</div></td></tr><tr><td><div>::ffff:127.0.0.1</div></td></tr><tr><td><div>::1</div></td></tr><tr><td><div>127.0.0.1</div></td></tr></table></div></td></tr><tr><td style="font-weight:bold;vertical-align:top">path_info</td><td valign="top">:</td><td><div>/welcome/teacher/addwenti/5</div></td></tr><tr><td style="font-weight:bold;vertical-align:top">query_string</td><td valign="top">:</td><td><div></div></td></tr><tr><td style="font-weight:bold;vertical-align:top">remote_addr</td><td valign="top">:</td><td><div>192.168.201.200</div></td></tr><tr><td style="font-weight:bold;vertical-align:top">remote_port</td><td valign="top">:</td><td><div>2123</div></td></tr><tr><td style="font-weight:bold;vertical-align:top">request_method</td><td valign="top">:</td><td><div>GET</div></td></tr><tr><td style="font-weight:bold;vertical-align:top">request_uri</td><td valign="top">:</td><td><div>/welcome/teacher/addwenti/5</div></td></tr><tr><td style="font-weight:bold;vertical-align:top">script_name</td><td valign="top">:</td><td><div></div></td></tr><tr><td style="font-weight:bold;vertical-align:top">server_name</td><td valign="top">:</td><td><div>cateacher</div></td></tr><tr><td style="font-weight:bold;vertical-align:top">server_port</td><td valign="top">:</td><td><div>80</div></td></tr><tr><td style="font-weight:bold;vertical-align:top">server_protocol</td><td valign="top">:</td><td><div>HTTP/1.1</div></td></tr><tr><td style="font-weight:bold;vertical-align:top">server_software</td><td valign="top">:</td><td><div>Rocket 1.2.6</div></td></tr><tr><td style="font-weight:bold;vertical-align:top">web2py_path</td><td valign="top">:</td><td><div>E:\\web</div></td></tr><tr><td style="font-weight:bold;vertical-align:top">web2py_version</td><td valign="top">:</td><td><div>2.5.1-stable+timestamp.2013.06.06.15.39.19</div></td></tr><tr><td style="font-weight:bold;vertical-align:top">wsgi_errors</td><td valign="top">:</td><td><div>&lt;open file &#x27;&lt;stderr&gt;&#x27;, mode &#x27;w&#x27; at 0x00AB50D0&gt;</div></td></tr><tr><td style="font-weight:bold;vertical-align:top">wsgi_file_wrapper</td><td valign="top">:</td><td><div>&lt;class wsgiref.util.FileWrapper at 0x01604DF8&gt;</div></td></tr><tr><td style="font-weight:bold;vertical-align:top">wsgi_input</td><td valign="top">:</td><td><div>&lt;socket._fileobject object at 0x01899A30&gt;</div></td></tr><tr><td style="font-weight:bold;vertical-align:top">wsgi_multiprocess</td><td valign="top">:</td><td><div>False</div></td></tr><tr><td style="font-weight:bold;vertical-align:top">wsgi_multithread</td><td valign="top">:</td><td><div>True</div></td></tr><tr><td style="font-weight:bold;vertical-align:top">wsgi_run_once</td><td valign="top">:</td><td><div>False</div></td></tr><tr><td style="font-weight:bold;vertical-align:top">wsgi_url_scheme</td><td valign="top">:</td><td><div>http</div></td></tr><tr><td style="font-weight:bold;vertical-align:top">wsgi_version</td><td valign="top">:</td><td><div><table><tr><td><div>1</div></td></tr><tr><td><div>0</div></td></tr></table></div></td></tr></table></div></td></tr><tr><td style="font-weight:bold;vertical-align:top">extension</td><td valign="top">:</td><td><div>html</div></td></tr><tr><td style="font-weight:bold;vertical-align:top">folder</td><td valign="top">:</td><td><div>E:\\web\\applications\\welcome\\</div></td></tr><tr><td style="font-weight:bold;vertical-align:top">function</td><td valign="top">:</td><td><div>addwenti</div></td></tr><tr><td style="font-weight:bold;vertical-align:top">get_vars</td><td valign="top">:</td><td><div><table></table></div></td></tr><tr><td style="font-weight:bold;vertical-align:top">global_settings</td><td valign="top">:</td><td><div><table><tr><td style="font-weight:bold;vertical-align:top">app_folders</td><td valign="top">:</td><td><div>set([&#x27;E:\\\\web\\\\applications\\\\welcome\\\\&#x27;])</div></td></tr><tr><td style="font-weight:bold;vertical-align:top">applications_parent</td><td valign="top">:</td><td><div>E:\\web</div></td></tr><tr><td style="font-weight:bold;vertical-align:top">cmd_args</td><td valign="top">:</td><td><div><table></table></div></td></tr><tr><td style="font-weight:bold;vertical-align:top">cmd_options</td><td valign="top">:</td><td><div>&lt;Values at 0x1664c88: {&#x27;verbose&#x27;: False, &#x27;ip&#x27;: &#x27;192.168.201.200&#x27;, &#x27;with_scheduler&#x27;: False, &#x27;ips&#x27;: [&#x27;192.168.201.200&#x27;, &#x27;192.168.202.200&#x27;], &#x27;shutdown_timeout&#x27;: 5, &#x27;taskbar&#x27;: False, &#x27;with_coverage&#x27;: False, &#x27;port&#x27;: 80, &#x27;maxthreads&#x27;: None, &#x27;softcron&#x27;: False, &#x27;server_name&#x27;: &#x27;cateacher&#x27;, &#x27;bpython&#x27;: False, &#x27;nogui&#x27;: False, &#x27;pid_filename&#x27;: &#x27;httpserver.pid&#x27;, &#x27;extcron&#x27;: False, &#x27;runcron&#x27;: False, &#x27;run_system_tests&#x27;: False, &#x27;test&#x27;: None, &#x27;folder&#x27;: &#x27;E:\\\\web&#x27;, &#x27;config&#x27;: &#x27;&#x27;, &#x27;import_models&#x27;: False, &#x27;winservice&#x27;: &#x27;&#x27;, &#x27;shell&#x27;: None, &#x27;run&#x27;: &#x27;&#x27;, &#x27;log_filename&#x27;: &#x27;httpserver.log&#x27;, &#x27;debuglevel&#x27;: 30, &#x27;args&#x27;: [&#x27;&#x27;], &#x27;socket_timeout&#x27;: 5, &#x27;ssl_ca_certificate&#x27;: None, &#x27;scheduler&#x27;: None, &#x27;profiler_filename&#x27;: None, &#x27;ssl_private_key&#x27;: &#x27;&#x27;, &#x27;scheduler_groups&#x27;: None, &#x27;password&#x27;: &quot;&#x27;123&#x27;&quot;, &#x27;request_queue_size&#x27;: 5, &#x27;ssl_certificate&#x27;: &#x27;&#x27;, &#x27;cronjob&#x27;: False, &#x27;numthreads&#x27;: None, &#x27;quiet&#x27;: False, &#x27;interfaces&#x27;: None, &#x27;minthreads&#x27;: None, &#x27;timeout&#x27;: 10, &#x27;plain&#x27;: False, &#x27;nobanner&#x27;: False}&gt;</div></td></tr><tr><td style="font-weight:bold;vertical-align:top">db_sessions</td><td valign="top">:</td><td><div>set([])</div></td></tr><tr><td style="font-weight:bold;vertical-align:top">debugging</td><td valign="top">:</td><td><div>False</div></td></tr><tr><td style="font-weight:bold;vertical-align:top">gluon_parent</td><td valign="top">:</td><td><div>E:\\web</div></td></tr><tr><td style="font-weight:bold;vertical-align:top">is_jython</td><td valign="top">:</td><td><div>False</div></td></tr><tr><td style="font-weight:bold;vertical-align:top">is_pypy</td><td valign="top">:</td><td><div>False</div></td></tr><tr><td style="font-weight:bold;vertical-align:top">local_hosts</td><td valign="top">:</td><td><div><table><tr><td><div>cateacher</div></td></tr><tr><td><div>192.168.202.200</div></td></tr><tr><td><div>192.168.201.200</div></td></tr><tr><td><div>::ffff:127.0.0.1</div></td></tr><tr><td><div>::1</div></td></tr><tr><td><div>127.0.0.1</div></td></tr></table></div></td></tr><tr><td style="font-weight:bold;vertical-align:top">web2py_version</td><td valign="top">:</td><td><div>2.5.1-stable+timestamp.2013.06.06.15.39.19</div></td></tr></table></div></td></tr><tr><td style="font-weight:bold;vertical-align:top">is_https</td><td valign="top">:</td><td><div>False</div></td></tr><tr><td style="font-weight:bold;vertical-align:top">is_local</td><td valign="top">:</td><td><div>True</div></td></tr><tr><td style="font-weight:bold;vertical-align:top">is_restful</td><td valign="top">:</td><td><div>False</div></td></tr><tr><td style="font-weight:bold;vertical-align:top">now</td><td valign="top">:</td><td><div>datetime.datetime(2013, 9, 23, 10, 25, 49, 781000)</div></td></tr><tr><td style="font-weight:bold;vertical-align:top">post_vars</td><td valign="top">:</td><td><div><table></table></div></td></tr><tr><td style="font-weight:bold;vertical-align:top">raw_args</td><td valign="top">:</td><td><div>5</div></td></tr><tr><td style="font-weight:bold;vertical-align:top">raw_extension</td><td valign="top">:</td><td><div>None</div></td></tr><tr><td style="font-weight:bold;vertical-align:top">url</td><td valign="top">:</td><td><div>/welcome/teacher/addwenti/5</div></td></tr><tr><td style="font-weight:bold;vertical-align:top">utcnow</td><td valign="top">:</td><td><div>datetime.datetime(2013, 9, 23, 2, 25, 49, 781000)</div></td></tr><tr><td style="font-weight:bold;vertical-align:top">uuid</td><td valign="top">:</td><td><div>welcome/192.168.201.200.2013-09-23.10-25-49.c8d56ae5-a2d3-4ce6-ad83-368aae292925</div></td></tr><tr><td style="font-weight:bold;vertical-align:top">vars</td><td valign="top">:</td><td><div><table></table></div></td></tr><tr><td style="font-weight:bold;vertical-align:top">wsgi</td><td valign="top">:</td><td><div><table><tr><td style="font-weight:bold;vertical-align:top">environ</td><td valign="top">:</td><td><div><table><tr><td style="font-weight:bold;vertical-align:top">HTTP_ACCEPT</td><td valign="top">:</td><td><div>*/*</div></td></tr><tr><td style="font-weight:bold;vertical-align:top">HTTP_ACCEPT_ENCODING</td><td valign="top">:</td><td><div>gzip, deflate</div></td></tr><tr><td style="font-weight:bold;vertical-align:top">HTTP_ACCEPT_LANGUAGE</td><td valign="top">:</td><td><div>zh-cn</div></td></tr><tr><td style="font-weight:bold;vertical-align:top">HTTP_CONNECTION</td><td valign="top">:</td><td><div>Keep-Alive</div></td></tr><tr><td style="font-weight:bold;vertical-align:top">HTTP_COOKIE</td><td valign="top">:</td><td><div>session_id_admin=192.168.201.200-b1e6b234-9522-46f7-b633-1e8ae3080901; session_id_welcome=192.168.201.200-30e8f22d-40b0-4c3c-b1c4-8a13ad6241dd</div></td></tr><tr><td style="font-weight:bold;vertical-align:top">HTTP_HOST</td><td valign="top">:</td><td><div>cateacher</div></td></tr><tr><td style="font-weight:bold;vertical-align:top">HTTP_USER_AGENT</td><td valign="top">:</td><td><div>Mozilla/4.0 (compatible; MSIE 8.0; Windows NT 5.1; Trident/4.0; Maxthon; Foxy/1; .NET CLR 2.0.50727; InfoPath.1)</div></td></tr><tr><td style="font-weight:bold;vertical-align:top">PATH_INFO</td><td valign="top">:</td><td><div>/welcome/teacher/addwenti/5</div></td></tr><tr><td style="font-weight:bold;vertical-align:top">QUERY_STRING</td><td valign="top">:</td><td><div></div></td></tr><tr><td style="font-weight:bold;vertical-align:top">REMOTE_ADDR</td><td valign="top">:</td><td><div>192.168.201.200</div></td></tr><tr><td style="font-weight:bold;vertical-align:top">REMOTE_PORT</td><td valign="top">:</td><td><div>2123</div></td></tr><tr><td style="font-weight:bold;vertical-align:top">REQUEST_METHOD</td><td valign="top">:</td><td><div>GET</div></td></tr><tr><td style="font-weight:bold;vertical-align:top">REQUEST_URI</td><td valign="top">:</td><td><div>/welcome/teacher/addwenti/5</div></td></tr><tr><td style="font-weight:bold;vertical-align:top">SCRIPT_NAME</td><td valign="top">:</td><td><div></div></td></tr><tr><td style="font-weight:bold;vertical-align:top">SERVER_NAME</td><td valign="top">:</td><td><div>cateacher</div></td></tr><tr><td style="font-weight:bold;vertical-align:top">SERVER_PORT</td><td valign="top">:</td><td><div>80</div></td></tr><tr><td style="font-weight:bold;vertical-align:top">SERVER_PROTOCOL</td><td valign="top">:</td><td><div>HTTP/1.1</div></td></tr><tr><td style="font-weight:bold;vertical-align:top">SERVER_SOFTWARE</td><td valign="top">:</td><td><div>Rocket 1.2.6</div></td></tr><tr><td style="font-weight:bold;vertical-align:top">wsgi.errors</td><td valign="top">:</td><td><div>&lt;open file &#x27;&lt;stderr&gt;&#x27;, mode &#x27;w&#x27; at 0x00AB50D0&gt;</div></td></tr><tr><td style="font-weight:bold;vertical-align:top">wsgi.file_wrapper</td><td valign="top">:</td><td><div>&lt;class wsgiref.util.FileWrapper at 0x01604DF8&gt;</div></td></tr><tr><td style="font-weight:bold;vertical-align:top">wsgi.input</td><td valign="top">:</td><td><div>&lt;cStringIO.StringO object at 0x019D8360&gt;</div></td></tr><tr><td style="font-weight:bold;vertical-align:top">wsgi.multiprocess</td><td valign="top">:</td><td><div>False</div></td></tr><tr><td style="font-weight:bold;vertical-align:top">wsgi.multithread</td><td valign="top">:</td><td><div>True</div></td></tr><tr><td style="font-weight:bold;vertical-align:top">wsgi.run_once</td><td valign="top">:</td><td><div>False</div></td></tr><tr><td style="font-weight:bold;vertical-align:top">wsgi.url_scheme</td><td valign="top">:</td><td><div>http</div></td></tr><tr><td style="font-weight:bold;vertical-align:top">wsgi.version</td><td valign="top">:</td><td><div>1</div></td></tr></table></div></td></tr></table></div></td></tr></table></div>'
+tRp70
+sS'frames'
+p71
+(lp72
+(dp73
+S'file'
+p74
+S'E:\\web\\gluon\\restricted.py'
+p75
+sS'dump'
+p76
+(dp77
+S'environment'
+p78
+S"{'A': <class 'gluon.html.A'>, 'ANY_OF': <class 'gluon.validators.ANY_OF'>, 'Auth': <class 'gluon.tools.Auth'>, 'B': <class 'gluon.html.B'>, 'BEAUTIFY': <class 'gluon.html.BEAUTIFY'>, 'BODY': <class 'gluon.html.BODY'>, 'BR': <class 'gluon.html.BR'>, 'BUTTON': <class 'gluon.html.BUTTON'>, 'CAT': <class 'gluon.html.CAT'>, 'CENTER': <class 'gluon.html.CENTER'>, ...}"
+p79
+sS'ccode'
+p80
+S'<code object <module> at 019C0F98, file "E:\\web\\...ications\\welcome\\controllers/teacher.py", line 3>'
+p81
+ssS'lnum'
+p82
+I212
+sS'lines'
+p83
+(dp84
+I207
+S'    try:'
+p85
+sI208
+S'        if isinstance(code, types.CodeType):'
+p86
+sI209
+S'            ccode = code'
+p87
+sI210
+S'        else:'
+p88
+sI211
+S'            ccode = compile2(code, layer)'
+p89
+sI212
+S'        exec ccode in environment'
+p90
+sI213
+S'    except HTTP:'
+p91
+sI214
+S'        raise'
+p92
+sI215
+S'    except RestrictedError:'
+p93
+sI216
+S'        # do not encapsulate (obfuscate) the original RestrictedError'
+p94
+ssS'call'
+p95
+S"(code='# coding: utf8\\n# \\xe5\\xb0\\x9d\\xe8\\xaf\\x95\\nimport datetime\\nnow=date...t, db)\\nresponse._vars=response._caller(addwenti)\\n', environment={'A': <class 'gluon.html.A'>, 'ANY_OF': <class 'gluon.validators.ANY_OF'>, 'Auth': <class 'gluon.tools.Auth'>, 'B': <class 'gluon.html.B'>, 'BEAUTIFY': <class 'gluon.html.BEAUTIFY'>, 'BODY': <class 'gluon.html.BODY'>, 'BR': <class 'gluon.html.BR'>, 'BUTTON': <class 'gluon.html.BUTTON'>, 'CAT': <class 'gluon.html.CAT'>, 'CENTER': <class 'gluon.html.CENTER'>, ...}, layer=r'E:\\web\\applications\\welcome\\controllers/teacher.py')"
+p96
+sS'func'
+p97
+S'restricted'
+p98
+sa(dp99
+g74
+S'E:\\web\\applications\\welcome\\controllers\\teacher.py'
+p100
+sg76
+(dp101
+sg82
+I163
+sg83
+(dp102
+I160
+S'    http://..../[app]/default/download/[filename]'
+p103
+sI161
+S'    """'
+p104
+sI162
+S'    return response.download(request, db)'
+p105
+sI153
+S"'''"
+p106
+sI154
+S'grade1,grade2\xef\xbc\x8c\xe8\xbf\x9e\xe6\x8e\xa5\xe6\xaf\x8f\xe4\xb8\xaa\xe8\xaf\xbe\xe7\xa8\x8b\xe5\xad\xa6\xe4\xb9\xa0\xe6\xa8\xa1\xe5\x9d\x97\xef\xbc\x8c\xe5\xad\xa6\xe4\xb9\xa0\xe6\xa8\xa1\xe5\x9d\x97\xe9\x87\x8c\xe9\x9d\xa2\xe6\x9c\x89\xe7\xbb\x83\xe4\xb9\xa0\xe8\xae\xb2\xe8\xa7\xa3\xef\xbc\x8c\xe4\xbd\x9c\xe4\xb8\x9a\xe6\x83\x85\xe5\x86\xb5\xe7\xbb\x9f\xe8\xae\xa1\xef\xbc\x88\xe4\xba\xa4\xe4\xbd\x9c\xe4\xb8\x9a\xe7\xbb\x9f\xe8\xae\xa1\xef\xbc\x8c\xe5\xbe\x97\xe5\x88\x86\xe7\xbb\x9f\xe8\xae\xa1\xef\xbc\x89'
+p107
+sI155
+S'\xe7\x94\xa8ajax\xe5\xae\x9e\xe7\x8e\xb0\xe7\xbb\x9f\xe8\xae\xa1\xe5\x92\x8c\xe8\xae\xb2\xe8\xa7\xa3\xe9\x83\xa8\xe5\x88\x86\xe6\x98\xbe\xe7\xa4\xba\xe7\xad\x94\xe6\xa1\x88'
+p108
+sI156
+S"'''"
+p109
+sI157
+S'def download():'
+p110
+sI158
+S'    """'
+p111
+sI159
+S'    allows downloading of uploaded files'
+p112
+ssg95
+S'()'
+p113
+sg97
+S'<module>'
+p114
+sa(dp115
+g74
+S'E:\\web\\gluon\\globals.py'
+p116
+sg76
+(dp117
+S'self'
+p118
+S'undefined'
+p119
+sS'f'
+S'<function addwenti>'
+p120
+ssg82
+I194
+sg83
+(dp121
+I192
+S"        self.delimiters = ('{{', '}}')"
+p122
+sI193
+S'        self._vars = None'
+p123
+sI194
+S'        self._caller = lambda f: f()'
+p124
+sI195
+S'        self._view_environment = None'
+p125
+sI196
+S'        self._custom_commit = None'
+p126
+sI197
+S'        self._custom_rollback = None'
+p127
+sI198
+S''
+sI189
+S'        self.menu = []             # used by the default view layout'
+p128
+sI190
+S'        self.files = []            # used by web2py_ajax.html'
+p129
+sI191
+S'        self.generic_patterns = []  # patterns to allow generic views'
+p130
+ssg95
+S'(f=<function addwenti>)'
+p131
+sg97
+S'<lambda>'
+p132
+sa(dp133
+g74
+S'E:\\web\\applications\\welcome\\controllers\\teacher.py'
+p134
+sg76
+(dp135
+S'db.lianxi'
+p136
+S'<Table lianxi (id,keshi,bianhao,timu)>'
+p137
+sS').select'
+p138
+g119
+sS'db.lianxi.keshi'
+p139
+S'<gluon.dal.Field object>'
+p140
+sS'lianxis'
+p141
+g119
+sS'keshi_id'
+p142
+S"'5'"
+p143
+sS'global db'
+p144
+S'<DAL uri="sqlite://storage.sqlite">'
+p145
+ssg82
+I147
+sg83
+(dp146
+I142
+S'                                   (db.lianxi.keshi==keshi_id)&'
+p147
+sI143
+S'                                   (db.lianxi.timu==timu),'
+p148
+sI144
+S'                                   keshi=keshi_id,'
+p149
+sI145
+S'                                   timu=timu'
+p150
+sI146
+S'                                   )'
+p151
+sI147
+S'    lianxis=db(db.lianxi(db.lianxi.keshi==keshi_id)).select()'
+p152
+sI148
+S'    return dict(timus=timus,lianxis=lianxis)'
+p153
+sI149
+S''
+sI150
+S''
+sI151
+S''
+ssg95
+S'()'
+p154
+sg97
+S'addwenti'
+p155
+sa(dp156
+g74
+S'E:\\web\\gluon\\dal.py'
+p157
+sg76
+(dp158
+S'self.query'
+p159
+S"<Row {'bianhao': 1L, 'timu': 21L, 'keshi': 5L, 'id': 10L}>"
+p160
+sS'adapter.select'
+p161
+S'<bound method SQLiteAdapter.select of <gluon.dal.SQLiteAdapter object>>'
+p162
+sS'fields'
+p163
+S'[]'
+p164
+sS'adapter'
+p165
+S'<gluon.dal.SQLiteAdapter object>'
+p166
+sS'attributes'
+p167
+g21
+sS'self'
+p168
+S"<Set <Row {'bianhao': 1L, 'timu': 21L, 'keshi': 5L, 'id': 10L}>>"
+p169
+ssg82
+I9958
+sg83
+(dp170
+I9953
+S"                                    attributes.get('join',None),"
+p171
+sI9954
+S"                                    attributes.get('left',None),"
+p172
+sI9955
+S"                                    attributes.get('orderby',None),"
+p173
+sI9956
+S"                                    attributes.get('groupby',None))"
+p174
+sI9957
+S'        fields = adapter.expand_all(fields, tablenames)'
+p175
+sI9958
+S'        return adapter.select(self.query,fields,attributes)'
+p176
+sI9959
+S''
+sI9960
+S'    def nested_select(self,*fields,**attributes):'
+p177
+sI9961
+S'        return Expression(self.db,self._select(*fields,**attributes))'
+p178
+sI9962
+S''
+ssg95
+S"(self=<Set <Row {'bianhao': 1L, 'timu': 21L, 'keshi': 5L, 'id': 10L}>>, *fields=[], **attributes={})"
+p179
+sg97
+S'select'
+p180
+sa(dp181
+g74
+S'E:\\web\\gluon\\dal.py'
+p182
+sg76
+(dp183
+S'fields'
+p184
+S'[]'
+p185
+sS'self'
+p186
+S'<gluon.dal.SQLiteAdapter object>'
+p187
+sS').select'
+p188
+S'<bound method SQLiteAdapter.select of <gluon.dal.SQLiteAdapter object>>'
+p189
+sS'attributes'
+p190
+g21
+sS'global SQLiteAdapter'
+p191
+S"<class 'gluon.dal.SQLiteAdapter'>"
+p192
+sS'query'
+p193
+S"<Row {'bianhao': 1L, 'timu': 21L, 'keshi': 5L, 'id': 10L}>"
+p194
+sS'builtinsuper'
+p195
+S"<type 'super'>"
+p196
+ssg82
+I2245
+sg83
+(dp197
+I2240
+S'        Note that the entire database, rather than one record, is locked'
+p198
+sI2241
+S'        (it will be locked eventually anyway by the following UPDATE).'
+p199
+sI2242
+S'        """'
+p200
+sI2243
+S"        if attributes.get('for_update', False) and not 'cache' in attributes:"
+p201
+sI2244
+S"            self.execute('BEGIN IMMEDIATE TRANSACTION;')"
+p202
+sI2245
+S'        return super(SQLiteAdapter, self).select(query, fields, attributes)'
+p203
+sI2246
+S''
+sI2247
+S'class SpatiaLiteAdapter(SQLiteAdapter):'
+p204
+sI2248
+S"    drivers = ('sqlite3','sqlite2')"
+p205
+sI2249
+S''
+ssg95
+S"(self=<gluon.dal.SQLiteAdapter object>, query=<Row {'bianhao': 1L, 'timu': 21L, 'keshi': 5L, 'id': 10L}>, fields=[], attributes={})"
+p206
+sg97
+g180
+sa(dp207
+g74
+S'E:\\web\\gluon\\dal.py'
+p208
+sg76
+(dp209
+S'self._select'
+p210
+S'<bound method SQLiteAdapter._select of <gluon.dal.SQLiteAdapter object>>'
+p211
+sS'fields'
+p212
+S'[]'
+p213
+sS'self'
+p214
+S'<gluon.dal.SQLiteAdapter object>'
+p215
+sS'sql'
+p216
+g119
+sS'query'
+p217
+S"<Row {'bianhao': 1L, 'timu': 21L, 'keshi': 5L, 'id': 10L}>"
+p218
+sS'attributes'
+p219
+g21
+ssg82
+I1691
+sg83
+(dp220
+I1686
+S''
+sI1687
+S'    def select(self, query, fields, attributes):'
+p221
+sI1688
+S'        """'
+p222
+sI1689
+S'        Always returns a Rows object, possibly empty.'
+p223
+sI1690
+S'        """'
+p224
+sI1691
+S'        sql = self._select(query, fields, attributes)'
+p225
+sI1692
+S"        cache = attributes.get('cache', None)"
+p226
+sI1693
+S"        if cache and attributes.get('cacheable',False):"
+p227
+sI1694
+S"            del attributes['cache']"
+p228
+sI1695
+S'            (cache_model, time_expire) = cache'
+p229
+ssg95
+S"(self=<gluon.dal.SQLiteAdapter object>, query=<Row {'bianhao': 1L, 'timu': 21L, 'keshi': 5L, 'id': 10L}>, fields=[], attributes={})"
+p230
+sg97
+g180
+sa(dp231
+g74
+S'E:\\web\\gluon\\dal.py'
+p232
+sg76
+(dp233
+S'builtinSyntaxError'
+p234
+S"<type 'exceptions.SyntaxError'>"
+p235
+ssg82
+I1537
+sg83
+(dp236
+I1536
+S'        if len(tablenames) < 1:'
+p237
+sI1537
+S"            raise SyntaxError('Set: no tables selected')"
+p238
+sI1538
+S'        self._colnames = map(self.expand, fields)'
+p239
+sI1539
+S'        def geoexpand(field):'
+p240
+sI1540
+S"            if isinstance(field.type,str) and field.type.startswith('geometry'):"
+p241
+sI1541
+S'                field = field.st_astext()'
+p242
+sI1532
+S'            for tablename in tables(field):'
+p243
+sI1533
+S'                if not tablename in tablenames:'
+p244
+sI1534
+S'                    tablenames.append(tablename)'
+p245
+sI1535
+S''
+ssg95
+S"(self=<gluon.dal.SQLiteAdapter object>, query=<Row {'bianhao': 1L, 'timu': 21L, 'keshi': 5L, 'id': 10L}>, fields=[], attributes={})"
+p246
+sg97
+S'_select'
+p247
+sasS'pyver'
+p248
+S'Python 2.7.3: C:\\Python27\\python.exe (prefix: C:\\Python27)'
+p249
+sS'session'
+p250
+g69
+(S's\x8c\x00\x00\x00<div><table><tr><td style="font-weight:bold;vertical-align:top">flash</td><td valign="top">:</td><td><div>None</div></td></tr></table></div>'
+tRp251
+sS'etype'
+p252
+S"<type 'exceptions.SyntaxError'>"
+p253
+sS'date'
+p254
+S'Mon Sep 23 10:25:50 2013'
+p255
+sS'response'
+p256
+g69
+(S's\x8a\x17\x00\x00<div><table><tr><td style="font-weight:bold;vertical-align:top">body</td><td valign="top">:</td><td><div>&lt;cStringIO.StringO object at 0x019C9300&gt;</div></td></tr><tr><td style="font-weight:bold;vertical-align:top">cookies</td><td valign="top">:</td><td><div><table><tr><td style="font-weight:bold;vertical-align:top">session_id_welcome</td><td valign="top">:</td><td><div>192.168.201.200-30e8f22d-40b0-4c3c-b1c4-8a13ad6241dd<table><tr><td style="font-weight:bold;vertical-align:top">comment</td><td valign="top">:</td><td><div></div></td></tr><tr><td style="font-weight:bold;vertical-align:top">domain</td><td valign="top">:</td><td><div></div></td></tr><tr><td style="font-weight:bold;vertical-align:top">expires</td><td valign="top">:</td><td><div></div></td></tr><tr><td style="font-weight:bold;vertical-align:top">httponly</td><td valign="top">:</td><td><div></div></td></tr><tr><td style="font-weight:bold;vertical-align:top">max-age</td><td valign="top">:</td><td><div></div></td></tr><tr><td style="font-weight:bold;vertical-align:top">path</td><td valign="top">:</td><td><div>/</div></td></tr><tr><td style="font-weight:bold;vertical-align:top">secure</td><td valign="top">:</td><td><div></div></td></tr><tr><td style="font-weight:bold;vertical-align:top">version</td><td valign="top">:</td><td><div></div></td></tr></table></div></td></tr></table></div></td></tr><tr><td style="font-weight:bold;vertical-align:top">delimiters</td><td valign="top">:</td><td><div><table><tr><td><div>{{</div></td></tr><tr><td><div>}}</div></td></tr></table></div></td></tr><tr><td style="font-weight:bold;vertical-align:top">files</td><td valign="top">:</td><td><div><table></table></div></td></tr><tr><td style="font-weight:bold;vertical-align:top">flash</td><td valign="top">:</td><td><div></div></td></tr><tr><td style="font-weight:bold;vertical-align:top">generic_patterns</td><td valign="top">:</td><td><div><table><tr><td><div>*</div></td></tr></table></div></td></tr><tr><td style="font-weight:bold;vertical-align:top">google_analytics_id</td><td valign="top">:</td><td><div>None</div></td></tr><tr><td style="font-weight:bold;vertical-align:top">headers</td><td valign="top">:</td><td><div><table><tr><td style="font-weight:bold;vertical-align:top">X-Powered-By</td><td valign="top">:</td><td><div>web2py</div></td></tr></table></div></td></tr><tr><td style="font-weight:bold;vertical-align:top">logo</td><td valign="top">:</td><td><div><a class="brand" href="http://www.ningwai.net/"><b>ningwai</b>&trade;&nbsp;</a></div></td></tr><tr><td style="font-weight:bold;vertical-align:top">menu</td><td valign="top">:</td><td><div><table><tr><td><div><table><tr><td><div>Home</div></td></tr><tr><td><div>False</div></td></tr><tr><td><div>/welcome/default/index</div></td></tr><tr><td><div><table></table></div></td></tr></table></div></td></tr><tr><td><div><table><tr><td><div>\xe4\xbd\x9c\xe4\xb8\x9a\xe6\x8f\x90\xe4\xba\xa4\xe7\xb3\xbb\xe7\xbb\x9f</div></td></tr><tr><td><div>False</div></td></tr><tr><td><div>/welcome/default/course_list</div></td></tr><tr><td><div><table></table></div></td></tr></table></div></td></tr></table></div></td></tr><tr><td style="font-weight:bold;vertical-align:top">meta</td><td valign="top">:</td><td><div><table><tr><td style="font-weight:bold;vertical-align:top">author</td><td valign="top">:</td><td><div></div></td></tr><tr><td style="font-weight:bold;vertical-align:top">description</td><td valign="top">:</td><td><div></div></td></tr><tr><td style="font-weight:bold;vertical-align:top">generator</td><td valign="top">:</td><td><div></div></td></tr><tr><td style="font-weight:bold;vertical-align:top">keywords</td><td valign="top">:</td><td><div></div></td></tr></table></div></td></tr><tr><td style="font-weight:bold;vertical-align:top">models_to_run</td><td valign="top">:</td><td><div><table><tr><td><div>^\\w+\\.py$</div></td></tr><tr><td><div>^teacher/\\w+\\.py$</div></td></tr><tr><td><div>^teacher/addwenti/\\w+\\.py$</div></td></tr></table></div></td></tr><tr><td style="font-weight:bold;vertical-align:top">postprocessing</td><td valign="top">:</td><td><div><table></table></div></td></tr><tr><td style="font-weight:bold;vertical-align:top">session_cookie_expires</td><td valign="top">:</td><td><div>None</div></td></tr><tr><td style="font-weight:bold;vertical-align:top">session_data_name</td><td valign="top">:</td><td><div>session_data_welcome</div></td></tr><tr><td style="font-weight:bold;vertical-align:top">session_file</td><td valign="top">:</td><td><div>&lt;open file &#x27;E:\\web\\applications\\welcome\\sessions\\192.168.201.200-30e8f22d-40b0-4c3c-b1c4-8a13ad6241dd&#x27;, mode &#x27;rb+&#x27; at 0x01844288&gt;</div></td></tr><tr><td style="font-weight:bold;vertical-align:top">session_filename</td><td valign="top">:</td><td><div>E:\\web\\applications\\welcome\\sessions\\192.168.201.200-30e8f22d-40b0-4c3c-b1c4-8a13ad6241dd</div></td></tr><tr><td style="font-weight:bold;vertical-align:top">session_id</td><td valign="top">:</td><td><div>192.168.201.200-30e8f22d-40b0-4c3c-b1c4-8a13ad6241dd</div></td></tr><tr><td style="font-weight:bold;vertical-align:top">session_id_name</td><td valign="top">:</td><td><div>session_id_welcome</div></td></tr><tr><td style="font-weight:bold;vertical-align:top">session_locked</td><td valign="top">:</td><td><div>True</div></td></tr><tr><td style="font-weight:bold;vertical-align:top">session_new</td><td valign="top">:</td><td><div>False</div></td></tr><tr><td style="font-weight:bold;vertical-align:top">session_storage_type</td><td valign="top">:</td><td><div>file</div></td></tr><tr><td style="font-weight:bold;vertical-align:top">status</td><td valign="top">:</td><td><div>200</div></td></tr><tr><td style="font-weight:bold;vertical-align:top">subtitle</td><td valign="top">:</td><td><div></div></td></tr><tr><td style="font-weight:bold;vertical-align:top">title</td><td valign="top">:</td><td><div>\xe5\xae\x81\xe6\xb3\xa2\xe5\xa4\x96\xe5\x9b\xbd\xe8\xaf\xad\xe5\xad\xa6\xe6\xa0\xa1\xe4\xbf\xa1\xe6\x81\xaf\xe6\x8a\x80\xe6\x9c\xaf\xe8\xaf\xbe</div></td></tr><tr><td style="font-weight:bold;vertical-align:top">view</td><td valign="top">:</td><td><div>teacher/addwenti.html</div></td></tr></table></div>'
+tRp257
+sS'locals'
+p258
+(dp259
+S'tables'
+p260
+S'<bound method SQLiteAdapter.tables of <gluon.dal.SQLiteAdapter object>>'
+p261
+sS'tablenames_for_common_filters'
+p262
+S'[]'
+p263
+sS'fields'
+p264
+S'[]'
+p265
+sS'self'
+p266
+S'<gluon.dal.SQLiteAdapter object>'
+p267
+sS'tablenames'
+p268
+S'[]'
+p269
+sS'query'
+p270
+S"<Row {'bianhao': 1L, 'timu': 21L, 'keshi': 5L, 'id': 10L}>"
+p271
+sS'attributes'
+p272
+g21
+sS'args_get'
+p273
+S'<built-in method get of dict object>'
+p274
+sssS'traceback'
+p275
+S'Traceback (most recent call last):\n  File "E:\\web\\gluon\\restricted.py", line 212, in restricted\n    exec ccode in environment\n  File "E:\\web\\applications\\welcome\\controllers/teacher.py", line 163, in <module>\n  File "E:\\web\\gluon\\globals.py", line 194, in <lambda>\n    self._caller = lambda f: f()\n  File "E:\\web\\applications\\welcome\\controllers/teacher.py", line 147, in addwenti\n    lianxis=db(db.lianxi(db.lianxi.keshi==keshi_id)).select()\n  File "E:\\web\\gluon\\dal.py", line 9958, in select\n    return adapter.select(self.query,fields,attributes)\n  File "E:\\web\\gluon\\dal.py", line 2245, in select\n    return super(SQLiteAdapter, self).select(query, fields, attributes)\n  File "E:\\web\\gluon\\dal.py", line 1691, in select\n    sql = self._select(query, fields, attributes)\n  File "E:\\web\\gluon\\dal.py", line 1537, in _select\n    raise SyntaxError(\'Set: no tables selected\')\nSyntaxError: Set: no tables selected\n'
+p276
+s.

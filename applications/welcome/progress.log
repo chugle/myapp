@@ -1,0 +1,25 @@
+[2013-08-19 20:17:37] START
+[2013-08-31 19:56:43] CREATE teacher.py: 0
+[2013-08-31 19:57:21] CREATE teacher/index.html: 0
+[2013-08-31 20:14:04] CREATE teacher/student_manage.html: 0
+[2013-08-31 20:16:13] CREATE teacher/course_manage.html: 0
+[2013-08-31 20:16:20] EDIT hw4/views/teacher/course_manage.html: -1
+[2013-08-31 20:20:59] CREATE teacher/keshi_manage.html: 0
+[2013-08-31 20:21:05] EDIT hw4/views/teacher/keshi_manage.html: -1
+[2013-08-31 20:24:48] CREATE teacher/timu_manage.html: 0
+[2013-08-31 20:24:53] EDIT hw4/views/teacher/timu_manage.html: -1
+[2013-08-31 20:25:08] CREATE teacher/lianxi_manage.html: 0
+[2013-08-31 20:25:12] EDIT hw4/views/teacher/lianxi_manage.html: -1
+[2013-08-31 20:27:02] CREATE teacher/zuoti_manage.html: 0
+[2013-08-31 20:27:08] EDIT hw4/views/teacher/zuoti_manage.html: -1
+[2013-08-31 20:27:19] CREATE teacher/zuoye_manage.html: 0
+[2013-08-31 20:27:23] EDIT hw4/views/teacher/zuoye_manage.html: -1
+[2013-08-31 20:28:30] CREATE teacher/defen_manage.html: 0
+[2013-08-31 20:28:36] EDIT hw4/views/teacher/defen_manage.html: -1
+[2013-08-31 20:34:42] CREATE teacher/wangpan.html: 0
+[2013-08-31 20:34:49] EDIT hw4/views/teacher/wangpan.html: -1
+[2013-09-01 10:56:34] CREATE teacher/pigai.html: 0
+[2013-09-01 10:56:38] EDIT hw4/views/teacher/pigai.html: -1
+[2013-09-13 10:54:55] CREATE teacher/homework2.html: 0
+[2013-09-13 10:55:42] EDIT welcome/views/teacher/homework2.html: -1
+[2013-09-13 13:54:36] CREATE teacher/homework1.html: 0

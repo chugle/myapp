@@ -1,0 +1,13 @@
+{{extend 'layout.html'}}
+
+{{=SQLTABLE(rows,
+     headers={'timu.wenti':'问题','zuoti.zuoda':'你的答案','timu.daan':'标准答案'},
+     truncate=100
+)
+}}
+<br>{{=keshi_id}}
+得分:{{=cj}}
+<hr>
+<a href={{=URL('lianxi')}}/{{=keshi_id}}>重新答题</a>
+<br>
+<a href="javascript:history.back()">返回</a>

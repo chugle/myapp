@@ -1,0 +1,4 @@
+{{extend 'layout.html'}}
+{{for row in rows:}}
+{{=H3(A(row.keshi.keshi+'. '+row.course.title, _href=URL("homeworks1", args=[row.keshi.id,banji])))}}
+{{pass}}

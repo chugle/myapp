@@ -1,0 +1,3 @@
+{{extend 'layout.html'}}
+<h2>初二{{=banji}}班作业情况</h2>
+{{=SQLTABLE(rows,upload=URL('download'))}}
